@@ -9,7 +9,6 @@ import {
   publicProcedure,
 } from "~/server/api/trpc";
 import { ratelimit } from "~/server/ratelimit";
-import { emojiValidator } from "~/shared/emojiValidator";
 
 const filterUser = (user: ClerkUser) => {
   return {
@@ -88,7 +87,11 @@ export const postsRouter = createTRPCRouter({
     }),
 
   createPost: protectedProcedure
-    .input(emojiValidator)
+    .input(
+      z.object({
+        message: z.string().emoji(),
+      })
+    )
     .mutation(async ({ ctx, input }) => {
       const { success } = await ratelimit.limit(ctx.session.userId);
 
